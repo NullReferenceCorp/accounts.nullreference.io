@@ -1,38 +1,38 @@
+namespace IdentityServer.Pages.Home.Error;
 using System.Threading.Tasks;
 using Duende.IdentityServer.Services;
+using IdentityServer.Pages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Hosting;
 
-namespace IdentityServer.Pages.Error;
-
 [AllowAnonymous]
 [SecurityHeaders]
 public class Index : PageModel
 {
-    private readonly IIdentityServerInteractionService _interaction;
-    private readonly IWebHostEnvironment _environment;
-        
+    private readonly IIdentityServerInteractionService interaction;
+    private readonly IWebHostEnvironment environment;
+
     public ViewModel View { get; set; }
-        
+
     public Index(IIdentityServerInteractionService interaction, IWebHostEnvironment environment)
     {
-        _interaction = interaction;
-        _environment = environment;
+        this.interaction = interaction;
+        this.environment = environment;
     }
-        
+
     public async Task OnGet(string errorId)
     {
-        View = new ViewModel();
+        this.View = new ViewModel();
 
         // retrieve error details from identityserver
-        var message = await _interaction.GetErrorContextAsync(errorId);
+        var message = await this.interaction.GetErrorContextAsync(errorId).ConfigureAwait(false);
         if (message != null)
         {
-            View.Error = message;
+            this.View.Error = message;
 
-            if (!_environment.IsDevelopment())
+            if (!this.environment.IsDevelopment())
             {
                 // only show in development
                 message.ErrorDescription = null;

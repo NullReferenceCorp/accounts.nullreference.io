@@ -1,18 +1,14 @@
 // Copyright (c) Duende Software. All rights reserved.
 // See LICENSE in the project root for license information.
 
-
+namespace IdentityServer.Pages;
 using System;
-using System.Threading.Tasks;
 using Duende.IdentityServer.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace IdentityServer.Pages;
-
 public static class Extensions
 {
     /// <summary>
@@ -21,18 +17,14 @@ public static class Extensions
     public static async Task<bool> GetSchemeSupportsSignOutAsync(this HttpContext context, string scheme)
     {
         var provider = context.RequestServices.GetRequiredService<IAuthenticationHandlerProvider>();
-        var handler = await provider.GetHandlerAsync(context, scheme);
-        return (handler is IAuthenticationSignOutHandler);
+        var handler = await provider.GetHandlerAsync(context, scheme).ConfigureAwait(false);
+        return handler is IAuthenticationSignOutHandler;
     }
-
     /// <summary>
     /// Checks if the redirect URI is for a native client.
     /// </summary>
-    public static bool IsNativeClient(this AuthorizationRequest context)
-    {
-        return !context.RedirectUri.StartsWith("https", StringComparison.Ordinal)
+    public static bool IsNativeClient(this AuthorizationRequest context) => !context.RedirectUri.StartsWith("https", StringComparison.Ordinal)
                && !context.RedirectUri.StartsWith("http", StringComparison.Ordinal);
-    }
 
     /// <summary>
     /// Renders a loading page that is used to redirect back to the redirectUri.

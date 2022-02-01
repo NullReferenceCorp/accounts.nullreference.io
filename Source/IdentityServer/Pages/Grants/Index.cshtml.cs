@@ -1,3 +1,4 @@
+namespace IdentityServer.Pages.Grants;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -6,45 +7,44 @@ using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
+using IdentityServer.Pages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-
-namespace IdentityServer.Pages.Grants;
 
 [SecurityHeaders]
 [Authorize]
 public class Index : PageModel
 {
-    private readonly IIdentityServerInteractionService _interaction;
-    private readonly IClientStore _clients;
-    private readonly IResourceStore _resources;
-    private readonly IEventService _events;
+    private readonly IIdentityServerInteractionService interaction;
+    private readonly IClientStore clients;
+    private readonly IResourceStore resources;
+    private readonly IEventService events;
 
     public Index(IIdentityServerInteractionService interaction,
         IClientStore clients,
         IResourceStore resources,
         IEventService events)
     {
-        _interaction = interaction;
-        _clients = clients;
-        _resources = resources;
-        _events = events;
+        this.interaction = interaction;
+        this.clients = clients;
+        this.resources = resources;
+        this.events = events;
     }
 
     public ViewModel View { get; set; }
-        
+
     public async Task OnGet()
     {
-        var grants = await _interaction.GetAllUserGrantsAsync();
+        var grants = await this.interaction.GetAllUserGrantsAsync().ConfigureAwait(false);
 
         var list = new List<GrantViewModel>();
         foreach (var grant in grants)
         {
-            var client = await _clients.FindClientByIdAsync(grant.ClientId);
+            var client = await this.clients.FindClientByIdAsync(grant.ClientId).ConfigureAwait(false);
             if (client != null)
             {
-                var resources = await _resources.FindResourcesByScopeAsync(grant.Scopes);
+                var resources = await this.resources.FindResourcesByScopeAsync(grant.Scopes).ConfigureAwait(false);
 
                 var item = new GrantViewModel()
                 {
@@ -63,7 +63,7 @@ public class Index : PageModel
             }
         }
 
-        View = new ViewModel
+        this.View = new ViewModel
         {
             Grants = list
         };
@@ -75,9 +75,9 @@ public class Index : PageModel
 
     public async Task<IActionResult> OnPost()
     {
-        await _interaction.RevokeUserConsentAsync(ClientId);
-        await _events.RaiseAsync(new GrantsRevokedEvent(User.GetSubjectId(), ClientId));
+        await this.interaction.RevokeUserConsentAsync(this.ClientId).ConfigureAwait(false);
+        await this.events.RaiseAsync(new GrantsRevokedEvent(this.User.GetSubjectId(), this.ClientId)).ConfigureAwait(false);
 
-        return RedirectToPage("/Grants/Index");
+        return this.RedirectToPage("/Grants/Index");
     }
 }

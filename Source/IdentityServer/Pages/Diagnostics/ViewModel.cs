@@ -1,20 +1,18 @@
 // Copyright (c) Duende Software. All rights reserved.
 // See LICENSE in the project root for license information.
 
-
+namespace IdentityServer.Pages.Diagnostics;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 
-namespace IdentityServer.Pages.Diagnostics;
-
 public class ViewModel
 {
     public ViewModel(AuthenticateResult result)
     {
-        AuthenticateResult = result;
+        this.AuthenticateResult = result;
 
         if (result.Properties.Items.ContainsKey("client_list"))
         {
@@ -22,7 +20,7 @@ public class ViewModel
             var bytes = Base64Url.Decode(encoded);
             var value = Encoding.UTF8.GetString(bytes);
 
-            Clients = JsonSerializer.Deserialize<string[]>(value);
+            this.Clients = JsonSerializer.Deserialize<string[]>(value);
         }
     }
 

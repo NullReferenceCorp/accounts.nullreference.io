@@ -1,8 +1,7 @@
+namespace IdentityServer.Pages.Redirect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-
-namespace IdentityServer.Pages.Redirect;
 
 [AllowAnonymous]
 public class IndexModel : PageModel
@@ -11,12 +10,12 @@ public class IndexModel : PageModel
 
     public IActionResult OnGet(string redirectUri)
     {
-        if (!Url.IsLocalUrl(redirectUri))
+        if (!this.Url.IsLocalUrl(redirectUri))
         {
-            return RedirectToPage("/Error/Index");
+            return this.RedirectToPage("/Error/Index");
         }
 
-        RedirectUri = redirectUri;
-        return Page();
+        this.RedirectUri = redirectUri;
+        return this.Page();
     }
 }

@@ -1,34 +1,30 @@
-using System;
+namespace IdentityServer.Pages.Account.Logout;
 using System.Threading.Tasks;
 using Duende.IdentityServer.Services;
+using IdentityServer.Pages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-
-namespace IdentityServer.Pages.Logout;
 
 [SecurityHeaders]
 [AllowAnonymous]
 public class LoggedOut : PageModel
 {
     private readonly IIdentityServerInteractionService _interactionService;
-        
+
     public LoggedOutViewModel View { get; set; }
 
-    public LoggedOut(IIdentityServerInteractionService interactionService)
-    {
-        _interactionService = interactionService;
-    }
+    public LoggedOut(IIdentityServerInteractionService interactionService) => this._interactionService = interactionService;
 
     public async Task OnGet(string logoutId)
     {
         // get context information (client name, post logout redirect URI and iframe for federated signout)
-        var logout = await _interactionService.GetLogoutContextAsync(logoutId);
+        var logout = await this._interactionService.GetLogoutContextAsync(logoutId).ConfigureAwait(false);
 
-        View = new LoggedOutViewModel
+        this.View = new LoggedOutViewModel
         {
             AutomaticRedirectAfterSignOut = LogoutOptions.AutomaticRedirectAfterSignOut,
             PostLogoutRedirectUri = logout?.PostLogoutRedirectUri,
-            ClientName = String.IsNullOrEmpty(logout?.ClientName) ? logout?.ClientId : logout?.ClientName,
+            ClientName = string.IsNullOrEmpty(logout?.ClientName) ? logout?.ClientId : logout?.ClientName,
             SignOutIframeUrl = logout?.SignOutIFrameUrl
         };
     }

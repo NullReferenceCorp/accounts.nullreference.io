@@ -1,3 +1,4 @@
+namespace IdentityServer.Pages.ExternalLogin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Test;
 using IdentityModel;
+using IdentityServer.Pages;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,16 +17,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 
-namespace IdentityServer.Pages.ExternalLogin;
-
 [AllowAnonymous]
 [SecurityHeaders]
 public class Callback : PageModel
 {
-    private readonly TestUserStore _users;
-    private readonly IIdentityServerInteractionService _interaction;
-    private readonly ILogger<Callback> _logger;
-    private readonly IEventService _events;
+    private readonly TestUserStore users;
+    private readonly IIdentityServerInteractionService interaction;
+    private readonly ILogger<Callback> logger;
+    private readonly IEventService events;
 
     public Callback(
         IIdentityServerInteractionService interaction,
@@ -33,17 +33,17 @@ public class Callback : PageModel
         TestUserStore users = null)
     {
         // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
-        _users = users ?? throw new Exception("Please call 'AddTestUsers(TestUsers.Users)' on the IIdentityServerBuilder in Startup or remove the TestUserStore from the AccountController.");
+        this.users = users ?? throw new Exception("Please call 'AddTestUsers(TestUsers.Users)' on the IIdentityServerBuilder in Startup or remove the TestUserStore from the AccountController.");
 
-        _interaction = interaction;
-        _logger = logger;
-        _events = events;
+        this.interaction = interaction;
+        this.logger = logger;
+        this.events = events;
     }
-        
+
     public async Task<IActionResult> OnGet()
     {
         // read external identity from the temporary cookie
-        var result = await HttpContext.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
+        var result = await this.HttpContext.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme).ConfigureAwait(false);
         if (result?.Succeeded != true)
         {
             throw new Exception("External authentication error");
@@ -51,10 +51,10 @@ public class Callback : PageModel
 
         var externalUser = result.Principal;
 
-        if (_logger.IsEnabled(LogLevel.Debug))
+        if (this.logger.IsEnabled(LogLevel.Debug))
         {
             var externalClaims = externalUser.Claims.Select(c => $"{c.Type}: {c.Value}");
-            _logger.LogDebug("External claims: {@claims}", externalClaims);
+            this.logger.LogDebug("External claims: {@claims}", externalClaims);
         }
 
         // lookup our user and external provider info
@@ -69,7 +69,7 @@ public class Callback : PageModel
         var providerUserId = userIdClaim.Value;
 
         // find external user
-        var user = _users.FindByExternalProvider(provider, providerUserId);
+        var user = this.users.FindByExternalProvider(provider, providerUserId);
         if (user == null)
         {
             // this might be where you might initiate a custom workflow for user registration
@@ -79,7 +79,7 @@ public class Callback : PageModel
             // remove the user id claim so we don't include it as an extra claim if/when we provision the user
             var claims = externalUser.Claims.ToList();
             claims.Remove(userIdClaim);
-            user = _users.AutoProvisionUser(provider, providerUserId, claims.ToList());
+            user = this.users.AutoProvisionUser(provider, providerUserId, claims.ToList());
         }
 
         // this allows us to collect any additional claims or properties
@@ -87,8 +87,8 @@ public class Callback : PageModel
         // this is typically used to store data needed for signout from those protocols.
         var additionalLocalClaims = new List<Claim>();
         var localSignInProps = new AuthenticationProperties();
-        CaptureExternalLoginContext(result, additionalLocalClaims, localSignInProps);
-            
+        this.CaptureExternalLoginContext(result, additionalLocalClaims, localSignInProps);
+
         // issue authentication cookie for user
         var isuser = new IdentityServerUser(user.SubjectId)
         {
@@ -97,29 +97,26 @@ public class Callback : PageModel
             AdditionalClaims = additionalLocalClaims
         };
 
-        await HttpContext.SignInAsync(isuser, localSignInProps);
+        await this.HttpContext.SignInAsync(isuser, localSignInProps).ConfigureAwait(false);
 
         // delete temporary cookie used during external authentication
-        await HttpContext.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
+        await this.HttpContext.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme).ConfigureAwait(false);
 
         // retrieve return URL
         var returnUrl = result.Properties.Items["returnUrl"] ?? "~/";
 
         // check if external login is in the context of an OIDC request
-        var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-        await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username, true, context?.Client.ClientId));
+        var context = await this.interaction.GetAuthorizationContextAsync(returnUrl).ConfigureAwait(false);
+        await this.events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username, true, context?.Client.ClientId)).ConfigureAwait(false);
 
-        if (context != null)
+        if (context?.IsNativeClient() == true)
         {
-            if (context.IsNativeClient())
-            {
-                // The client is native, so this change in how to
-                // return the response is for better UX for the end user.
-                return this.LoadingPage(returnUrl);
-            }
+            // The client is native, so this change in how to
+            // return the response is for better UX for the end user.
+            return this.LoadingPage(returnUrl);
         }
 
-        return Redirect(returnUrl);
+        return this.Redirect(returnUrl);
     }
 
     // if the external login is OIDC-based, there are certain things we need to preserve to make logout work

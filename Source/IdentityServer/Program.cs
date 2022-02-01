@@ -1,54 +1,91 @@
-using Duende.IdentityServer.EntityFramework.DbContexts;
-using IdentityServer;
-using Microsoft.EntityFrameworkCore;
+namespace IdentityServer;
+
 using Serilog;
+using IdentityServer.Options;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
-
-Log.Information("Starting up");
-
-try
+#pragma warning disable RCS1102 // Make class static.
+public class Program
+#pragma warning restore RCS1102 // Make class static.
 {
-    var builder = WebApplication.CreateBuilder(args);
-
-    builder.Host.UseSerilog((ctx, lc) => lc
-        .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}")
-        .Enrich.FromLogContext()
-        .ReadFrom.Configuration(ctx.Configuration));
-
-    var app = builder
-        .ConfigureServices()
-        .ConfigurePipeline();
-    
-
-    using (var scope = app.Services.CreateScope())
+    public static async Task<int> Main(string[] args)
     {
-        var configurationStoreDb = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-        configurationStoreDb.Database.Migrate();
+        IHost host = null;
 
-        var operationalStoreDb = scope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
-        operationalStoreDb.Database.Migrate();
-    }
-    // this seeding is only for the template to bootstrap the DB and users.
-    // in production you will likely want a different approach.
-    if (args.Contains("/seed"))
-    {
-        Log.Information("Seeding database...");
-        SeedData.EnsureSeedData(app);
-        Log.Information("Done seeding database. Exiting.");
-        return;
+        try
+        {
+            host = CreateHostBuilder(args).Build();
+
+            host.LogApplicationStarted();
+            await host.RunAsync().ConfigureAwait(false);
+            host.LogApplicationStopped();
+
+            return 0;
+        }
+#pragma warning disable CA1031 // Do not catch general exception types
+        catch (Exception exception)
+#pragma warning restore CA1031 // Do not catch general exception types
+        {
+            host!.LogApplicationTerminatedUnexpectedly(exception);
+
+            return 1;
+        }
     }
 
-    app.Run();
-}
-catch (Exception ex) when (ex.GetType().Name is not "StopTheHostException") // https://github.com/dotnet/runtime/issues/60600
-{
-    Log.Fatal(ex, "Unhandled exception");
-}
-finally
-{
-    Log.Information("Shut down complete");
-    Log.CloseAndFlush();
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        new HostBuilder()
+
+            .UseContentRoot(Directory.GetCurrentDirectory())
+            .ConfigureHostConfiguration(
+                configurationBuilder => configurationBuilder.AddCustomBootstrapConfiguration(args))
+            .ConfigureAppConfiguration(
+                (hostingContext, configurationBuilder) =>
+                {
+                    hostingContext.HostingEnvironment.ApplicationName = AssemblyInformation.Current.Product;
+                    _ = configurationBuilder.AddCustomConfiguration(hostingContext.HostingEnvironment, args);
+                })
+            .UseSerilog(ConfigureReloadableLogger)
+            .UseDefaultServiceProvider(
+                (context, options) =>
+                {
+                    var isDevelopment = context.HostingEnvironment.IsDevelopment();
+                    options.ValidateScopes = isDevelopment;
+                    options.ValidateOnBuild = isDevelopment;
+                })
+
+            .ConfigureWebHost(ConfigureWebHostBuilder)
+            .UseConsoleLifetime();
+
+    private static void ConfigureWebHostBuilder(IWebHostBuilder webHostBuilder) =>
+        webHostBuilder
+            .UseKestrel(
+                (builderContext, options) =>
+                {
+                    options.AddServerHeader = false;
+                    options.Configure(
+                        builderContext.Configuration.GetRequiredSection(nameof(ApplicationOptions.Kestrel)),
+                        reloadOnChange: false);
+                })
+            // Used for IIS and IIS Express for in-process hosting. Use UseIISIntegration for out-of-process hosting.
+            .UseIIS()
+            .UseStartup<Startup>();
+
+    /// <summary>
+    /// Configures a logger used during the applications lifetime.
+    /// <see href="https://nblumhardt.com/2020/10/bootstrap-logger/"/>.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="services">The services.</param>
+    /// <param name="configuration">The configuration.</param>
+    private static void ConfigureReloadableLogger(
+        HostBuilderContext context,
+        IServiceProvider services,
+        LoggerConfiguration configuration) =>
+        configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.WithProperty("Application", context.HostingEnvironment.ApplicationName)
+            .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName)
+            .WriteTo.Conditional(
+                _ => context.HostingEnvironment.IsDevelopment(),
+                x => x.Console().WriteTo.Debug());
 }

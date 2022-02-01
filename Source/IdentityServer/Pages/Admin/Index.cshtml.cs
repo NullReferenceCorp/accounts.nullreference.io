@@ -1,7 +1,6 @@
+namespace IdentityServer.Pages.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-
-namespace IdentityServer.Pages.Admin;
 
 [SecurityHeaders]
 [Authorize]
