@@ -1,0 +1,114 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+env:
+  # Disable the .NET logo in the console output.
+  DOTNET_NOLOGO: true
+  # Disable the .NET first time experience to skip caching NuGet packages and speed up the build.
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  # Disable sending .NET CLI telemetry to Microsoft.
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  # Set the build number in MinVer.
+#  MINVERBUILDMETADATA: build.${{github.run_number}}
+jobs:
+  build:
+    name: Build-${{matrix.os}}
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest] # windows-latest, macOS-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2.4.0
+        with:
+          lfs: true
+          fetch-depth: 0
+      - name: "Install .NET Core SDK"
+        uses: actions/setup-dotnet@v1.9.0
+      - name: "Dotnet Tool Restore"
+        run: dotnet tool restore
+        shell: pwsh
+      - name: "Dotnet Cake Build"
+        run: dotnet cake --target=Build
+        shell: pwsh
+      - name: "Dotnet Cake Test"
+        run: dotnet cake --target=Test
+        shell: pwsh
+      - name: "Dotnet Cake Publish"
+        run: dotnet cake --target=Publish
+        shell: pwsh
+      - name: "Publish Artifacts"
+        uses: actions/upload-artifact@v2.3.1
+        with:
+          name: ${{matrix.os}}
+          path: "./Artifacts"
+
+  docker:
+    name: Docker-${{matrix.os}}
+    env:
+      DOCKER_IMAGE_NAME: accounts-nullreference-io
+      DOCKER_REGISTRY: registry.digitalocean.com
+      DOCKER_USERNAME: ${{secrets.DOCR_USER}}
+      DOCKER_PASSWORD: ${{secrets.DOCR_PASSWORD}}
+      DOCKER_REPOSITORY_NAME: web-scheduler
+    environment:
+       name: "DOCR registry.digitalocean.com/web-scheduler"
+       url: https://registry.digitalocean.com/web-scheduler"
+    permissions:
+      packages: write
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2.4.0
+        with:
+          lfs: true
+          fetch-depth: 0
+      - name: "Install .NET Core SDK"
+        uses: actions/setup-dotnet@v1.9.0
+      - name: "Dotnet Tool Restore"
+        run: dotnet tool restore
+        shell: pwsh
+      - name: "Install QEMU"
+        id: qemu
+        uses: docker/setup-qemu-action@v1
+      - name: "Available platforms"
+        run: echo ${{steps.qemu.outputs.platforms}}
+      - name: "Install Docker BuildX"
+        uses: docker/setup-buildx-action@v1
+      - name: "Docker Login"
+        if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+        run: echo ${{env.DOCKER_PASSWORD}} | docker login ${{env.DOCKER_REGISTRY}} --username ${{env.DOCKER_USERNAME}} --password-stdin
+        shell: pwsh
+      - name: "Dotnet Cake DockerBuild"
+        run: dotnet cake --target=DockerBuild --tag=${{env.DOCKER_REGISTRY}}/${{env.DOCKER_REPOSITORY_NAME}}/${{env.DOCKER_IMAGE_NAME}} --push=${{github.ref == 'refs/heads/main' || github.event_name == 'release'}}
+        shell: pwsh
+      - name: Read file contents from DOCKER_TAG
+        if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+        id: read_file
+        uses: andstor/file-reader-action@v1
+        with:
+          path: "./Artifacts/DOCKER_TAG"
+      - name: DigitalOcean App Platform deployment
+        if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+        uses: digitalocean/app_action@main
+        with:
+          app_name: accounts.nullreference.io
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          images: '[
+              {
+                "name": "accounts-nullreference-io",
+                "repository": "${{env.DOCKER_REGISTRY}}/${{env.DOCKER_REPOSITORY_NAME}}/${{env.DOCKER_IMAGE_NAME}}",
+                "tag": "${{ steps.read_file.outputs.contents }}"
+              }]'
