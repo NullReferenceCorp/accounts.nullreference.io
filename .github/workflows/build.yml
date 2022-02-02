@@ -101,7 +101,7 @@ jobs:
         with:
           path: "./Artifacts/DOCKER_TAG"
       - name: DigitalOcean App Platform deployment
-        if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+        if: github.event_name == 'release'
         uses: digitalocean/app_action@main
         with:
           app_name: accounts-nullreference.io
