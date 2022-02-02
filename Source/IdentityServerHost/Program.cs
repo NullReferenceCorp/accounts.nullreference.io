@@ -1,6 +1,10 @@
 using Duende.IdentityServer;
+using IdentityServer.Pages.Admin.ApiScopes;
+using IdentityServer.Pages.Admin.Clients;
+using IdentityServer.Pages.Admin.IdentityScopes;
 using IdentityServerHost.Data;
 using IdentityServerHost.Models;
+using IdentityServerHost.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +32,7 @@ if (builder.Environment.IsDevelopment())
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders()
+    .AddClaimsPrincipalFactory<ClaimsFactory<ApplicationUser>>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
@@ -90,7 +95,10 @@ builder.Services
                 }).Services
         .AddControllersWithViews();
 
-
+builder.Services
+    .AddScoped<ApiScopeRepository>()
+    .AddScoped<ClientRepository>()
+    .AddScoped<IdentityScopeRepository>();
 
 
 builder.Services.AddRazorPages();
