@@ -1,4 +1,3 @@
-using Duende.IdentityServer;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using IdentityServer.Pages.Admin.ApiScopes;
 using IdentityServer.Pages.Admin.Clients;
@@ -6,11 +5,8 @@ using IdentityServer.Pages.Admin.IdentityScopes;
 using IdentityServerHost.Data;
 using IdentityServerHost.Models;
 using IdentityServerHost.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -121,6 +117,17 @@ builder.Services
                     options.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"];
                     options.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"];
                 })
+                .AddGitHub(o =>
+                {
+                    o.ClientId = builder.Configuration["Authentication:GitHub:ClientId"];
+                    o.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"];
+                    o.CallbackPath = "/signin-github";
+
+                    // Grants access to read a user's profile data.
+                    // https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps
+                    o.Scope.Add("read:user");
+                })
+
                 .Services
         .AddControllersWithViews();
 
