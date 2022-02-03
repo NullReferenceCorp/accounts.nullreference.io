@@ -44,7 +44,7 @@ builder.Services.AddDbContext<DataProtectionKeysDbContext>(b =>
 });
 
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders()
     .AddClaimsPrincipalFactory<ClaimsFactory<ApplicationUser>>()
