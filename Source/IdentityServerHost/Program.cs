@@ -6,13 +6,16 @@ using IdentityServer.Pages.Admin.IdentityScopes;
 using IdentityServerHost.Data;
 using IdentityServerHost.Models;
 using IdentityServerHost.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Host.UseSerilog(ConfigureReloadableLogger);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("ApplicationStoreConnectionString");
 
@@ -53,17 +56,18 @@ builder.Services.AddDefaultIdentity<ApplicationUser>()
 
 builder.Services.AddDataProtection(o => o.ApplicationDiscriminator = $"accounts.nullreference.io-{builder.Environment.EnvironmentName}").PersistKeysToDbContext<DataProtectionKeysDbContext>();
 
+
 builder.Services
        .AddIdentityServer(options =>
-       {
-           options.Events.RaiseErrorEvents = true;
-           options.Events.RaiseInformationEvents = true;
-           options.Events.RaiseFailureEvents = true;
-           options.Events.RaiseSuccessEvents = true;
+{
+    options.Events.RaiseErrorEvents = true;
+    options.Events.RaiseInformationEvents = true;
+    options.Events.RaiseFailureEvents = true;
+    options.Events.RaiseSuccessEvents = true;
 
-           // see https://docs.duendesoftware.com/identityserver/v5/basics/resources
-           options.EmitStaticAudienceClaim = true;
-       })
+    // see https://docs.duendesoftware.com/identityserver/v5/basics/resources
+    options.EmitStaticAudienceClaim = true;
+})
        .AddAspNetIdentity<ApplicationUser>()
        // this adds the config data from DB (clients, resources, CORS)
        .AddConfigurationStore(options => options.ConfigureDbContext = b =>
@@ -98,17 +102,26 @@ builder.Services
            options.EnableTokenCleanup = true;
            options.RemoveConsumedTokens = true;
        })
-       .AddJwtBearerClientAuthentication().Services
+        .AddJwtBearerClientAuthentication().Services
        .AddAuthentication()
                 .AddGoogle(options =>
                 {
-                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                     // register your IdentityServer with Google at https://console.developers.google.com
                     // enable the Google+ API
                     // set the redirect URI to https://localhost:5001/signin-google
                     options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
                     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-                }).Services
+                })
+                .AddMicrosoftAccount(options => {
+                    options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
+                    options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
+                })
+                .AddTwitter(options =>
+                {
+                    options.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"];
+                    options.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"];
+                })
+                .Services
         .AddControllersWithViews();
 
 builder.Services
@@ -116,14 +129,7 @@ builder.Services
     .AddScoped<ClientRepository>()
     .AddScoped<IdentityScopeRepository>();
 
-
 builder.Services.AddRazorPages();
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders =
-        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -178,4 +184,18 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapDefaultControllerRoute();
 });
-app.Run();
+await app.RunAsync();
+
+
+static void ConfigureReloadableLogger(
+        Microsoft.Extensions.Hosting.HostBuilderContext context,
+        IServiceProvider services,
+        LoggerConfiguration configuration) =>
+        configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.WithProperty("Application", context.HostingEnvironment.ApplicationName)
+            .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName)
+            .WriteTo.Conditional(
+                _ => context.HostingEnvironment.IsDevelopment(),
+                x => x.Console().WriteTo.Debug());
