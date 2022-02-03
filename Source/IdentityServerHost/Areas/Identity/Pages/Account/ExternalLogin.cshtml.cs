@@ -76,6 +76,17 @@ public class ExternalLoginModel : PageModel
     /// </summary>
     public class InputModel
     {
+        [Required]
+        [DataType(DataType.Text)]
+        [Display(Name = "First Name")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [DataType(DataType.Text)]
+        [Display(Name = "Last Name")]
+        public string LastName { get; set; }
+
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -83,6 +94,7 @@ public class ExternalLoginModel : PageModel
         [Required]
         [EmailAddress]
         public string Email { get; set; }
+
     }
 
     public IActionResult OnGet() => this.RedirectToPage("./Login");
@@ -128,7 +140,9 @@ public class ExternalLoginModel : PageModel
         {
             this.Input = new InputModel
             {
-                Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                FirstName = info.Principal.FindFirstValue(ClaimTypes.GivenName),
+                LastName = info.Principal.FindFirstValue(ClaimTypes.Name),
             };
         }
 
@@ -149,6 +163,8 @@ public class ExternalLoginModel : PageModel
         if (this.ModelState.IsValid)
         {
             var user = this.CreateUser();
+            user.FirstName = this.Input.FirstName;
+            user.LastName = this.Input.LastName;
 
             await this.userStore.SetUserNameAsync(user, this.Input.Email, CancellationToken.None).ConfigureAwait(false);
             await this.emailStore.SetEmailAsync(user, this.Input.Email, CancellationToken.None).ConfigureAwait(false);
