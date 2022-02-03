@@ -1,0 +1,60 @@
+alerts:
+- rule: DEPLOYMENT_FAILED
+- rule: DOMAIN_FAILED
+databases:
+- cluster_name: accounts-nullreference-io-prod
+  db_user: doadmin
+  engine: MYSQL
+  name: accounts-nullreference-io-prod
+  production: true
+  version: "8"
+domains:
+- domain: account.nullreference.io
+  type: PRIMARY
+name: account-nullreference-io
+region: nyc
+services:
+- alerts:
+  - operator: GREATER_THAN
+    rule: CPU_UTILIZATION
+    value: 80
+    window: FIVE_MINUTES
+  - operator: GREATER_THAN
+    rule: MEM_UTILIZATION
+    value: 80
+    window: FIVE_MINUTES
+  - operator: GREATER_THAN
+    rule: RESTART_COUNT
+    value: 5
+    window: FIVE_MINUTES
+  dockerfile_path: Dockerfile
+  envs:
+  - key: ConnectionStrings__ConfigurationStoreConnectionString
+    scope: RUN_TIME
+    value: Server=${accounts-nullreference-io-prod.HOSTNAME};Port=${accounts-nullreference-io-prod.PORT};Database=ConfigurationStore;UserId=${accounts-nullreference-io-prod.USERNAME};Password=${accounts-nullreference-io-prod.PASSWORD};SslMode=Required;
+  - key: ConnectionStrings__OperationalStoreConnectionString
+    scope: RUN_AND_BUILD_TIME
+    value: Server=${accounts-nullreference-io-prod.HOSTNAME};Port=${accounts-nullreference-io-prod.PORT};Database=OperationalStore;UserId=${accounts-nullreference-io-prod.USERNAME};Password=${accounts-nullreference-io-prod.PASSWORD};SslMode=Required;
+  - key: Kestrel__Endpoints__Http__Url
+    scope: RUN_AND_BUILD_TIME
+    value: "http://*:80"
+  - key: ASPNETCORE_ENVIRONMENT
+    scope: RUN_AND_BUILD_TIME
+    value: Production
+  - key: ConnectionStrings__ApplicationStoreConnectionString
+    scope: RUN_AND_BUILD_TIME
+    value: Server=${accounts-nullreference-io-prod.HOSTNAME};Port=${accounts-nullreference-io-prod.PORT};Database=ApplicationStore;UserId=${accounts-nullreference-io-prod.USERNAME};Password=${accounts-nullreference-io-prod.PASSWORD};SslMode=Required;
+  - key: ConnectionStrings__DataProtectionConnectionString
+    scope: RUN_AND_BUILD_TIME
+    value: Server=${accounts-nullreference-io-prod.HOSTNAME};Port=${accounts-nullreference-io-prod.PORT};Database=DataProtection;UserId=${accounts-nullreference-io-prod.USERNAME};Password=${accounts-nullreference-io-prod.PASSWORD};SslMode=Required;
+  image:
+    registry_type: DOCR
+    repository: accounts-nullreference-io
+    tag: 0.1.0
+  http_port: 8080
+  instance_count: 2
+  instance_size_slug: professional-xs
+  name: account-nullreference-io
+  routes:
+  - path: /
+  source_dir: /

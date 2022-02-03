@@ -1,10 +1,12 @@
 using Duende.IdentityServer;
+using Duende.IdentityServer.EntityFramework.DbContexts;
 using IdentityServer.Pages.Admin.ApiScopes;
 using IdentityServer.Pages.Admin.Clients;
 using IdentityServer.Pages.Admin.IdentityScopes;
 using IdentityServerHost.Data;
 using IdentityServerHost.Models;
 using IdentityServerHost.Services;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,12 +31,26 @@ if (builder.Environment.IsDevelopment())
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
 
+
+builder.Services.AddDbContext<DataProtectionKeysDbContext>(b =>
+{
+    _ = b.UseMySql(builder.Configuration.GetConnectionString("DataProtectionConnectionString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DataProtectionConnectionString")), dbOpts => dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName));
+    if (builder.Environment.IsDevelopment())
+    {
+        _ = b.LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors();
+    }
+});
+
+
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders()
     .AddClaimsPrincipalFactory<ClaimsFactory<ApplicationUser>>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.AddDataProtection(o => o.ApplicationDiscriminator = $"accounts.nullreference.io-{builder.Environment.EnvironmentName}").PersistKeysToDbContext<DataProtectionKeysDbContext>();
 
 builder.Services
        .AddIdentityServer(options =>
@@ -124,6 +140,30 @@ app.UseIdentityServer();
 //app.UseAuthentication();
 app.UseAuthorization();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<DataProtectionKeysDbContext>();
+    db.Database.Migrate();
+}
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
+    db.Database.Migrate();
+}
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
+    db.Database.Migrate();
+}
 
 app.MapRazorPages();
 app.UseEndpoints(endpoints =>
