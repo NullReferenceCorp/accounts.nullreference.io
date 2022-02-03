@@ -104,11 +104,11 @@ jobs:
         if: github.event_name == 'release'
         uses: digitalocean/app_action@main
         with:
-          app_name: accounts-nullreference-io
+          app_name: account-nullreference-io
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           images: '[
               {
-                "name": "accounts-nullreference-io",
+                "name": "account-nullreference-io",
                 "repository": "${{env.DOCKER_REGISTRY}}/${{env.DOCKER_REPOSITORY_NAME}}/${{env.DOCKER_IMAGE_NAME}}",
                 "tag": "${{ steps.read_file.outputs.contents }}"
               }]'
