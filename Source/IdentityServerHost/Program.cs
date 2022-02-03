@@ -7,6 +7,7 @@ using IdentityServerHost.Data;
 using IdentityServerHost.Models;
 using IdentityServerHost.Services;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -102,7 +103,6 @@ builder.Services
                 .AddGoogle(options =>
                 {
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-
                     // register your IdentityServer with Google at https://console.developers.google.com
                     // enable the Google+ API
                     // set the redirect URI to https://localhost:5001/signin-google
@@ -118,6 +118,11 @@ builder.Services
 
 
 builder.Services.AddRazorPages();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
 
 var app = builder.Build();
 
@@ -129,6 +134,9 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
+    app.UseForwardedHeaders();
+    app.UseHsts();
+
     app.UseExceptionHandler("/Error");
 }
 
