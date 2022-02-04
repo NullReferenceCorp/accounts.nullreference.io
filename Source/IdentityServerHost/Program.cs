@@ -99,6 +99,7 @@ builder.Services
            options.RemoveConsumedTokens = true;
        })
         .AddJwtBearerClientAuthentication().Services
+        .AddBff().Services
        .AddAuthentication()
                 .AddGoogle(options =>
                 {
@@ -158,8 +159,10 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseIdentityServer();
 
-//app.UseAuthentication();
+app.UseAuthentication();
+app.UseBff();
 app.UseAuthorization();
+app.MapBffManagementEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
