@@ -54,7 +54,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>()
     .AddClaimsPrincipalFactory<ClaimsFactory<ApplicationUser>>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddDataProtection(o => o.ApplicationDiscriminator = $"accounts.nullreference.io-{builder.Environment.EnvironmentName}").PersistKeysToDbContext<DataProtectionKeysDbContext>();
+builder.Services.AddDataProtection(o => o.ApplicationDiscriminator = "accounts.nullreference.io").PersistKeysToDbContext<DataProtectionKeysDbContext>();
 
 
 builder.Services
