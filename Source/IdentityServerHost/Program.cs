@@ -208,5 +208,5 @@ static void ConfigureReloadableLogger(
             .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName)
             .WriteTo.Conditional(
                 _ => context.HostingEnvironment.IsDevelopment() && Environment.GetEnvironmentVariable("CANCEL_DEBUG") != "",
-                x => x.Console().WriteTo.Debug();
+                x => x.Console().WriteTo.Debug());
    
