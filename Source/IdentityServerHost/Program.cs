@@ -94,9 +94,9 @@ builder.Services
            // this enables automatic token cleanup. this is optional.
            options.EnableTokenCleanup = true;
            options.RemoveConsumedTokens = true;
+
        })
         .AddJwtBearerClientAuthentication().Services
-        .AddBff().Services
        .AddAuthentication()
                 .AddGoogle(options =>
                 {
@@ -105,16 +105,19 @@ builder.Services
                     // set the redirect URI to https://localhost:5001/signin-google
                     options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
                     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+                    options.SaveTokens = true;
                 })
                 .AddMicrosoftAccount(options =>
                 {
                     options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
                     options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
+                    options.SaveTokens = true;
                 })
                 .AddTwitter(options =>
                 {
                     options.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"];
                     options.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"];
+                    options.SaveTokens = true;
                 })
                 .AddGitHub(o =>
                 {
@@ -125,6 +128,7 @@ builder.Services
                     // Grants access to read a user's profile data.
                     // https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps
                     o.Scope.Add("read:user");
+                    o.SaveTokens = true;
                 })
 
                 .Services
@@ -158,9 +162,7 @@ app.UseRouting();
 app.UseIdentityServer();
 
 app.UseAuthentication();
-app.UseBff();
 app.UseAuthorization();
-app.MapBffManagementEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
