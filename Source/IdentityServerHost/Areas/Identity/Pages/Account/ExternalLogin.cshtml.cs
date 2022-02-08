@@ -94,7 +94,6 @@ public class ExternalLoginModel : PageModel
         [Required]
         [EmailAddress]
         public string Email { get; set; }
-
     }
 
     public IActionResult OnGet() => this.RedirectToPage("./Login");

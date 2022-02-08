@@ -130,5 +130,4 @@ public class IdentityScopeRepository
         await _context.SaveChangesAsync();
     }
 
-
 }

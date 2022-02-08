@@ -130,5 +130,4 @@ public class ApiScopeRepository
         await _context.SaveChangesAsync();
     }
 
-
 }

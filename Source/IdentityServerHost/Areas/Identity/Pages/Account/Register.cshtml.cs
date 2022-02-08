@@ -69,7 +69,6 @@ public class RegisterModel : PageModel
     /// </summary>
     public class InputModel
     {
-
         [Required]
         [DataType(DataType.Text)]
         [Display(Name = "First Name")]

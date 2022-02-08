@@ -31,7 +31,6 @@ if (builder.Environment.IsDevelopment())
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
 
-
 builder.Services.AddDbContext<DataProtectionKeysDbContext>(b =>
 {
     _ = b.UseMySql(builder.Configuration.GetConnectionString("DataProtectionConnectionString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DataProtectionConnectionString")), dbOpts => dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName));
@@ -43,7 +42,6 @@ builder.Services.AddDbContext<DataProtectionKeysDbContext>(b =>
     }
 });
 
-
 builder.Services.AddDefaultIdentity<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders()
@@ -51,7 +49,6 @@ builder.Services.AddDefaultIdentity<ApplicationUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddDataProtection(o => o.ApplicationDiscriminator = "accounts.nullreference.io").PersistKeysToDbContext<DataProtectionKeysDbContext>();
-
 
 builder.Services
        .AddIdentityServer(options =>
@@ -109,7 +106,8 @@ builder.Services
                     options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
                     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
                 })
-                .AddMicrosoftAccount(options => {
+                .AddMicrosoftAccount(options =>
+                {
                     options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
                     options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
                 })
@@ -170,13 +168,11 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<DataProtectionKeysDbContext>();
     db.Database.Migrate();
 }
-
 
 using (var scope = app.Services.CreateScope())
 {
@@ -196,7 +192,6 @@ app.UseEndpoints(endpoints =>
 });
 await app.RunAsync();
 
-
 static void ConfigureReloadableLogger(
         Microsoft.Extensions.Hosting.HostBuilderContext context,
         IServiceProvider services,
@@ -206,7 +201,4 @@ static void ConfigureReloadableLogger(
             .ReadFrom.Services(services)
             .Enrich.WithProperty("Application", context.HostingEnvironment.ApplicationName)
             .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName)
-            .WriteTo.Conditional(
-                _ => context.HostingEnvironment.IsDevelopment() && Environment.GetEnvironmentVariable("CANCEL_DEBUG") != "",
-                x => x.Console().WriteTo.Debug());
-   
+            .WriteTo.Console();
