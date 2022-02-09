@@ -1,4 +1,5 @@
 using Duende.IdentityServer.EntityFramework.DbContexts;
+using Duende.IdentityServer.Stores.Serialization;
 using IdentityServer.Pages.Admin.ApiScopes;
 using IdentityServer.Pages.Admin.Clients;
 using IdentityServer.Pages.Admin.IdentityScopes;
@@ -55,6 +56,10 @@ builder.Services.AddDataProtection(o => o.ApplicationDiscriminator = "accounts.n
 builder.Services
        .AddIdentityServer(options =>
 {
+    options.PersistentGrants = new PersistentGrantOptions()
+    {
+        DataProtectData = true
+    };
     options.Events.RaiseErrorEvents = true;
     options.Events.RaiseInformationEvents = true;
     options.Events.RaiseFailureEvents = true;
