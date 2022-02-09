@@ -16,14 +16,14 @@ public class DigitalOceanAuthenticationOptions : OAuthOptions
 {
     public DigitalOceanAuthenticationOptions()
     {
-        this.ClaimsIssuer = DigitalOceanAuthenticationDefaults.Issuer;
-        this.CallbackPath = DigitalOceanAuthenticationDefaults.CallbackPath;
+        ClaimsIssuer = DigitalOceanAuthenticationDefaults.Issuer;
+        CallbackPath = DigitalOceanAuthenticationDefaults.CallbackPath;
+        AuthorizationEndpoint = DigitalOceanAuthenticationDefaults.AuthorizationEndpoint;
+        TokenEndpoint = DigitalOceanAuthenticationDefaults.TokenEndpoint;
+        UserInformationEndpoint = DigitalOceanAuthenticationDefaults.UserInformationEndpoint;
 
-        this.AuthorizationEndpoint = DigitalOceanAuthenticationDefaults.AuthorizationEndpoint;
-        this.TokenEndpoint = DigitalOceanAuthenticationDefaults.TokenEndpoint;
-
-        this.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "uuid");
-        this.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-        this.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+        ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "uuid");
+        ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+        ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
     }
 }

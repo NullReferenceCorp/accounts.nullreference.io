@@ -1,3 +1,4 @@
+namespace IdentityServer.Pages.Admin.ApiScopes;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Entities;
 using Duende.IdentityServer.EntityFramework.Mappers;
@@ -7,8 +8,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-
-namespace IdentityServer.Pages.Admin.ApiScopes;
 
 public class ApiScopeSummaryModel
 {

@@ -174,6 +174,10 @@ public class ExternalLoginModel : PageModel
                 result = await this.userManager.AddLoginAsync(user, info).ConfigureAwait(false);
                 if (result.Succeeded)
                 {
+                    // Add external claims
+
+                    _ = await this.userManager.AddClaimsAsync(user, info.Principal.Claims).ConfigureAwait(false);
+
                     this.logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
                     var userId = await this.userManager.GetUserIdAsync(user).ConfigureAwait(false);

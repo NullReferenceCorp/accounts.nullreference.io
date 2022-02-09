@@ -4,10 +4,9 @@
  * for more information concerning the license and the contributors participating to this project.
  */
 
+namespace Microsoft.Extensions.DependencyInjection;
 using AspNet.Security.OAuth.DigitalOcean;
 using Microsoft.AspNetCore.Authentication;
-
-namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// Extension methods to add DigitalOcean authentication capabilities to an HTTP application pipeline.

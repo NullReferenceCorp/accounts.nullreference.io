@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-
-#nullable disable
+﻿#nullable disable
 
 namespace IdentityServerHost.Data.Migrations.ApplicationDb
 {
+    using Microsoft.EntityFrameworkCore.Migrations;
+
     public partial class SomethingIsWrong : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

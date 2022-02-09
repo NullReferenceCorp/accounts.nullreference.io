@@ -89,7 +89,6 @@ public class Callback : PageModel
         var additionalLocalClaims = new List<Claim>();
         var localSignInProps = new AuthenticationProperties();
         this.CaptureExternalLoginContext(result, additionalLocalClaims, localSignInProps);
-
         // issue authentication cookie for user
         var isuser = new IdentityServerUser(user.SubjectId)
         {

@@ -1,3 +1,4 @@
+namespace IdentityServer.Pages.Admin.Clients;
 using IdentityModel;
 using IdentityServerHost.Attributes;
 using Microsoft.AspNetCore.Authorization;
@@ -5,8 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Threading.Tasks;
-
-namespace IdentityServer.Pages.Admin.Clients;
 
 [SecurityHeaders]
 [Authorize]
