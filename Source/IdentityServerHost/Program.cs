@@ -132,7 +132,7 @@ builder.Services
                     o.Scope.Add("read:user");
                     o.SaveTokens = true;
                 })
-                .AddDigitalOcean(OpenIdConnectDefaults.AuthenticationScheme, o =>
+                .AddDigitalOcean(o =>
                 {
                     o.ClientId = builder.Configuration["Authentication:DigitalOcean:ClientId"];
                     o.ClientSecret = builder.Configuration["Authentication:DigitalOcean:ClientSecret"];

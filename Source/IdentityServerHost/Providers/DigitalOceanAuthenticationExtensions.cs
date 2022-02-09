@@ -1,11 +1,10 @@
-/*
+﻿/*
  * Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * See https://github.com/aspnet-contrib/AspNet.Security.OAuth.Providers
  * for more information concerning the license and the contributors participating to this project.
  */
 
 using AspNet.Security.OAuth.DigitalOcean;
-using Microsoft.AspNetCore.Authentication;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -20,7 +19,7 @@ public static class DigitalOceanAuthenticationExtensions
     /// </summary>
     /// <param name="builder">The authentication builder.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
-    public static AuthenticationBuilder AddDigitalOcean(this AuthenticationBuilder builder)
+    public static AuthenticationBuilder AddDigitalOcean([NotNull] this AuthenticationBuilder builder)
     {
         return builder.AddDigitalOcean(DigitalOceanAuthenticationDefaults.AuthenticationScheme, options => { });
     }
@@ -33,8 +32,8 @@ public static class DigitalOceanAuthenticationExtensions
     /// <param name="configuration">The delegate used to configure the OpenID 2.0 options.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static AuthenticationBuilder AddDigitalOcean(
-        this AuthenticationBuilder builder,
-        Action<DigitalOceanAuthenticationOptions> configuration)
+        [NotNull] this AuthenticationBuilder builder,
+        [NotNull] Action<DigitalOceanAuthenticationOptions> configuration)
     {
         return builder.AddDigitalOcean(DigitalOceanAuthenticationDefaults.AuthenticationScheme, configuration);
     }
@@ -48,9 +47,9 @@ public static class DigitalOceanAuthenticationExtensions
     /// <param name="configuration">The delegate used to configure the DigitalOcean options.</param>
     /// <returns>The <see cref="AuthenticationBuilder"/>.</returns>
     public static AuthenticationBuilder AddDigitalOcean(
-        this AuthenticationBuilder builder,
-        string scheme,
-        Action<DigitalOceanAuthenticationOptions> configuration)
+        [NotNull] this AuthenticationBuilder builder,
+        [NotNull] string scheme,
+        [NotNull] Action<DigitalOceanAuthenticationOptions> configuration)
     {
         return builder.AddDigitalOcean(scheme, DigitalOceanAuthenticationDefaults.DisplayName, configuration);
     }
@@ -65,10 +64,10 @@ public static class DigitalOceanAuthenticationExtensions
     /// <param name="configuration">The delegate used to configure the DigitalOcean options.</param>
     /// <returns>The <see cref="AuthenticationBuilder"/>.</returns>
     public static AuthenticationBuilder AddDigitalOcean(
-        this AuthenticationBuilder builder,
-        string scheme,
-        string caption,
-        Action<DigitalOceanAuthenticationOptions> configuration)
+        [NotNull] this AuthenticationBuilder builder,
+        [NotNull] string scheme,
+        [CanBeNull] string caption,
+        [NotNull] Action<DigitalOceanAuthenticationOptions> configuration)
     {
         return builder.AddOAuth<DigitalOceanAuthenticationOptions, DigitalOceanAuthenticationHandler>(scheme, caption, configuration);
     }
