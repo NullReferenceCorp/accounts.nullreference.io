@@ -1,10 +1,9 @@
+namespace IdentityServer.Pages.Admin.ApiScopes;
 using IdentityServerHost.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-namespace IdentityServer.Pages.Admin.ApiScopes;
 
 [SecurityHeaders]
 [Authorize]

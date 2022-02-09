@@ -5,6 +5,7 @@ using IdentityServer.Pages.Admin.IdentityScopes;
 using IdentityServerHost.Data;
 using IdentityServerHost.Models;
 using IdentityServerHost.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -107,30 +108,87 @@ builder.Services
                     options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
                     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
                     options.SaveTokens = true;
+                    options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
+                    options.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");
+                    options.Events.OnCreatingTicket = ctx =>
+                    {
+                        var tokens = ctx.Properties.GetTokens().ToList();
+
+                        tokens.Add(new AuthenticationToken()
+                        {
+                            Name = "TicketCreated",
+                            Value = DateTime.UtcNow.ToString("O")
+                        });
+
+                        ctx.Properties.StoreTokens(tokens);
+
+                        return Task.CompletedTask;
+                    };
                 })
                 .AddMicrosoftAccount(options =>
                 {
                     options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
                     options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
                     options.SaveTokens = true;
+                    options.Events.OnCreatingTicket = ctx =>
+                    {
+                        var tokens = ctx.Properties.GetTokens().ToList();
+
+                        tokens.Add(new AuthenticationToken()
+                        {
+                            Name = "TicketCreated",
+                            Value = DateTime.UtcNow.ToString("O")
+                        });
+
+                        ctx.Properties.StoreTokens(tokens);
+
+                        return Task.CompletedTask;
+                    };
                 })
-                //.AddTwitter(options =>
-                //{
-                //    options.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"];
-                //    options.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"];
-                //    options.SaveTokens = true;
-                // options.GetClaimsFromUserInfoEndpoint = true;
-               // })
-                .AddGitHub(o =>
+                .AddTwitter(options =>
                 {
-                    o.ClientId = builder.Configuration["Authentication:GitHub:ClientId"];
-                    o.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"];
-                    o.CallbackPath = "/signin-github";
+                    options.ClientId = builder.Configuration["Authentication:Twitter:ConsumerKey"];
+                    options.ClientSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"];
+                    options.SaveTokens = true;
+                    options.Events.OnCreatingTicket = ctx =>
+                    {
+                        var tokens = ctx.Properties.GetTokens().ToList();
+
+                        tokens.Add(new AuthenticationToken()
+                        {
+                            Name = "TicketCreated",
+                            Value = DateTime.UtcNow.ToString("O")
+                        });
+
+                        ctx.Properties.StoreTokens(tokens);
+
+                        return Task.CompletedTask;
+                    };
+                })
+                .AddGitHub(options =>
+                {
+                    options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"];
+                    options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"];
+                    options.CallbackPath = "/signin-github";
 
                     // Grants access to read a user's profile data.
                     // https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps
-                    o.Scope.Add("read:user");
-                    o.SaveTokens = true;
+                    options.Scope.Add("read:user");
+                    options.SaveTokens = true;
+                    options.Events.OnCreatingTicket = ctx =>
+                    {
+                        var tokens = ctx.Properties.GetTokens().ToList();
+
+                        tokens.Add(new AuthenticationToken()
+                        {
+                            Name = "TicketCreated",
+                            Value = DateTime.UtcNow.ToString("O")
+                        });
+
+                        ctx.Properties.StoreTokens(tokens);
+
+                        return Task.CompletedTask;
+                    };
                 })
                 .AddDigitalOcean(o =>
                 {
@@ -138,6 +196,20 @@ builder.Services
                     o.ClientSecret = builder.Configuration["Authentication:DigitalOcean:ClientSecret"];
                     o.Scope.Add("read");
                     o.SaveTokens = true;
+                    o.Events.OnCreatingTicket = ctx =>
+                    {
+                        var tokens = ctx.Properties.GetTokens().ToList();
+
+                        tokens.Add(new AuthenticationToken()
+                        {
+                            Name = "TicketCreated",
+                            Value = DateTime.UtcNow.ToString("O")
+                        });
+
+                        ctx.Properties.StoreTokens(tokens);
+
+                        return Task.CompletedTask;
+                    };
                 })
 
                 .Services

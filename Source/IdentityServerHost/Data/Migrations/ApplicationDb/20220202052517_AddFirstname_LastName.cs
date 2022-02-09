@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-
-#nullable disable
+﻿#nullable disable
 
 namespace IdentityServerHost.Data.Migrations.ApplicationDb
 {
+    using Microsoft.EntityFrameworkCore.Migrations;
+
     public partial class AddFirstname_LastName : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
