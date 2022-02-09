@@ -14,7 +14,7 @@ public class IndexModel : PageModel
 
     public IndexModel(IdentityScopeRepository repository)
     {
-        _repository = repository;
+        this._repository = repository;
     }
 
     public IEnumerable<IdentityScopeSummaryModel> Scopes { get; private set; }
@@ -22,7 +22,7 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync(string filter)
     {
-        Filter = filter;
-        Scopes = await _repository.GetAllAsync(filter);
+        this.Filter = filter;
+        this.Scopes = await this._repository.GetAllAsync(filter);
     }
 }

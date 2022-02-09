@@ -14,7 +14,7 @@ public class IndexModel : PageModel
 
     public IndexModel(ClientRepository repository)
     {
-        _repository = repository;
+        this._repository = repository;
     }
 
     public IEnumerable<ClientSummaryModel> Clients { get; private set; }
@@ -22,7 +22,7 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync(string filter)
     {
-        Filter = filter;
-        Clients = await _repository.GetAllAsync(filter);
+        this.Filter = filter;
+        this.Clients = await this._repository.GetAllAsync(filter);
     }
 }

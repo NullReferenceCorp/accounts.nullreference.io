@@ -29,12 +29,12 @@ public class ApiScopeRepository
 
     public ApiScopeRepository(ConfigurationDbContext context)
     {
-        _context = context;
+        this._context = context;
     }
 
     public async Task<IEnumerable<ApiScopeSummaryModel>> GetAllAsync(string filter = null)
     {
-        var query = _context.ApiScopes
+        var query = this._context.ApiScopes
             .Include(x => x.UserClaims)
             .AsQueryable();
 
@@ -54,7 +54,7 @@ public class ApiScopeRepository
 
     public async Task<ApiScopeModel> GetByIdAsync(string id)
     {
-        var scope = await _context.ApiScopes
+        var scope = await this._context.ApiScopes
             .Include(x => x.UserClaims)
             .SingleOrDefaultAsync(x => x.Name == id);
 
@@ -82,13 +82,13 @@ public class ApiScopeRepository
             scope.UserClaims = claims.ToList();
         }
 
-        _context.ApiScopes.Add(scope.ToEntity());
-        await _context.SaveChangesAsync();
+        this._context.ApiScopes.Add(scope.ToEntity());
+        await this._context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(ApiScopeModel model)
     {
-        var scope = await _context.ApiScopes
+        var scope = await this._context.ApiScopes
             .Include(x => x.UserClaims)
             .SingleOrDefaultAsync(x => x.Name == model.Name);
 
@@ -117,17 +117,17 @@ public class ApiScopeRepository
             }));
         }
 
-        await _context.SaveChangesAsync();
+        await this._context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(string id)
     {
-        var scope = await _context.ApiScopes.SingleOrDefaultAsync(x => x.Name == id);
+        var scope = await this._context.ApiScopes.SingleOrDefaultAsync(x => x.Name == id);
 
         if (scope == null) throw new Exception("Invalid Api Scope");
 
-        _context.ApiScopes.Remove(scope);
-        await _context.SaveChangesAsync();
+        this._context.ApiScopes.Remove(scope);
+        await this._context.SaveChangesAsync();
     }
 
 }

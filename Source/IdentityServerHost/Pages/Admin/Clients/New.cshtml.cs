@@ -16,7 +16,7 @@ public class NewModel : PageModel
 
     public NewModel(ClientRepository repository)
     {
-        _repository = repository;
+        this._repository = repository;
     }
 
     [BindProperty]
@@ -26,7 +26,7 @@ public class NewModel : PageModel
 
     public void OnGet()
     {
-        InputModel = new CreateClientModel
+        this.InputModel = new CreateClientModel
         { 
             Secret = Convert.ToBase64String(CryptoRandom.CreateRandomKey(16))
         };
@@ -34,12 +34,12 @@ public class NewModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (ModelState.IsValid)
+        if (this.ModelState.IsValid)
         {
-            await _repository.CreateAsync(InputModel);
-            Created = true;
+            await this._repository.CreateAsync(this.InputModel);
+            this.Created = true;
         }
 
-        return Page();
+        return this.Page();
     }
 }

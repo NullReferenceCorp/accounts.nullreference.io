@@ -14,7 +14,7 @@ public class NewModel : PageModel
 
     public NewModel(IdentityScopeRepository repository)
     {
-        _repository = repository;
+        this._repository = repository;
     }
 
     [BindProperty]
@@ -26,12 +26,12 @@ public class NewModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (ModelState.IsValid)
+        if (this.ModelState.IsValid)
         {
-            await _repository.CreateAsync(InputModel);
-            return RedirectToPage("/Admin/IdentityScopes/Edit", new { id = InputModel.Name });
+            await this._repository.CreateAsync(this.InputModel);
+            return this.RedirectToPage("/Admin/IdentityScopes/Edit", new { id = this.InputModel.Name });
         }
 
-        return Page();
+        return this.Page();
     }
 }

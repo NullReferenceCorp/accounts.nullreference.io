@@ -5,6 +5,7 @@ using IdentityServer.Pages.Admin.IdentityScopes;
 using IdentityServerHost.Data;
 using IdentityServerHost.Models;
 using IdentityServerHost.Services;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -113,12 +114,13 @@ builder.Services
                     options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
                     options.SaveTokens = true;
                 })
-                .AddTwitter(options =>
-                {
-                    options.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"];
-                    options.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"];
-                    options.SaveTokens = true;
-                })
+                //.AddTwitter(options =>
+                //{
+                //    options.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"];
+                //    options.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"];
+                //    options.SaveTokens = true;
+                // options.GetClaimsFromUserInfoEndpoint = true;
+               // })
                 .AddGitHub(o =>
                 {
                     o.ClientId = builder.Configuration["Authentication:GitHub:ClientId"];
@@ -128,6 +130,13 @@ builder.Services
                     // Grants access to read a user's profile data.
                     // https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps
                     o.Scope.Add("read:user");
+                    o.SaveTokens = true;
+                })
+                .AddDigitalOcean(OpenIdConnectDefaults.AuthenticationScheme, o =>
+                {
+                    o.ClientId = builder.Configuration["Authentication:DigitalOcean:ClientId"];
+                    o.ClientSecret = builder.Configuration["Authentication:DigitalOcean:ClientSecret"];
+                    o.Scope.Add("read");
                     o.SaveTokens = true;
                 })
 
