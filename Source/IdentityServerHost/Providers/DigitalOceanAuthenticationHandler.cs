@@ -31,7 +31,7 @@ public partial class DigitalOceanAuthenticationHandler : OAuthHandler<DigitalOce
     protected override async Task<OAuthTokenResponse> ExchangeCodeAsync(OAuthCodeExchangeContext context)
     {
         // See https://www.digitalocean.com/community/tutorials/how-to-use-oauth-authentication-with-digitalocean-as-a-user-or-developer for details
-        var tokenRequestParameters = new Dictionary<string, string?>()
+        var tokenRequestParameters = new Dictionary<string, string>()
         {
             ["client_id"] = Options.ClientId,
             ["client_secret"] = Options.ClientSecret,
