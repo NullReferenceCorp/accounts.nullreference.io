@@ -21,7 +21,11 @@ var connectionString = builder.Configuration.GetConnectionString("ApplicationSto
 
 builder.Services.AddDbContext<ApplicationDbContext>(b =>
  {
-     _ = b.UseMySql(builder.Configuration.GetConnectionString("ApplicationStoreConnectionString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("ApplicationStoreConnectionString")), dbOpts => dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName));
+     _ = b.UseMySql(builder.Configuration.GetConnectionString("ApplicationStoreConnectionString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("ApplicationStoreConnectionString")), dbOpts =>
+     {
+         dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName)
+             .EnableRetryOnFailure();
+     });
      if (builder.Environment.IsDevelopment())
      {
          _ = b.LogTo(Console.WriteLine, LogLevel.Information)
@@ -37,7 +41,11 @@ if (builder.Environment.IsDevelopment())
 
 builder.Services.AddDbContext<DataProtectionKeysDbContext>(b =>
 {
-    _ = b.UseMySql(builder.Configuration.GetConnectionString("DataProtectionConnectionString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DataProtectionConnectionString")), dbOpts => dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName));
+    _ = b.UseMySql(builder.Configuration.GetConnectionString("DataProtectionConnectionString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DataProtectionConnectionString")), dbOpts =>
+    {
+        dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName)
+            .EnableRetryOnFailure();
+    });
     if (builder.Environment.IsDevelopment())
     {
         _ = b.LogTo(Console.WriteLine, LogLevel.Information)
@@ -77,7 +85,11 @@ builder.Services
        // this adds the config data from DB (clients, resources, CORS)
        .AddConfigurationStore(options => options.ConfigureDbContext = b =>
        {
-           _ = b.UseMySql(builder.Configuration.GetConnectionString("ConfigurationStoreConnectionString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("ConfigurationStoreConnectionString")), dbOpts => dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName));
+           _ = b.UseMySql(builder.Configuration.GetConnectionString("ConfigurationStoreConnectionString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("ConfigurationStoreConnectionString")), dbOpts =>
+           {
+               dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName)
+                   .EnableRetryOnFailure();
+           });
            if (builder.Environment.IsDevelopment())
            {
                _ = b.LogTo(Console.WriteLine, LogLevel.Information)
@@ -93,7 +105,11 @@ builder.Services
        {
            options.ConfigureDbContext = b =>
            {
-               _ = b.UseMySql(builder.Configuration.GetConnectionString("OperationalStoreConnectionString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("OperationalStoreConnectionString")), dbOpts => dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName));
+               _ = b.UseMySql(builder.Configuration.GetConnectionString("OperationalStoreConnectionString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("OperationalStoreConnectionString")), dbOpts =>
+               {
+                   dbOpts.MigrationsAssembly(typeof(Program).Assembly.FullName)
+                       .EnableRetryOnFailure();
+               });
 
                if (builder.Environment.IsDevelopment())
                {
