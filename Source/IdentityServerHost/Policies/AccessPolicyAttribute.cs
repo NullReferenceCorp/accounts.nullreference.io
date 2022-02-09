@@ -1,4 +1,4 @@
-namespace WebScheduler.Api.Policies;
+namespace IdentityServerHost.Policies;
 
 using Microsoft.AspNetCore.Authorization;
 
