@@ -4,10 +4,11 @@
  * for more information concerning the license and the contributors participating to this project.
  */
 
-namespace AspNet.Security.OAuth.DigitalOcean;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
+
+namespace AspNet.Security.OAuth.DigitalOcean;
 
 /// <summary>
 /// Defines a set of options used by <see cref="DigitalOceanAuthenticationHandler"/>.
@@ -21,6 +22,8 @@ public class DigitalOceanAuthenticationOptions : OAuthOptions
         AuthorizationEndpoint = DigitalOceanAuthenticationDefaults.AuthorizationEndpoint;
         TokenEndpoint = DigitalOceanAuthenticationDefaults.TokenEndpoint;
         UserInformationEndpoint = DigitalOceanAuthenticationDefaults.UserInformationEndpoint;
+
+        Scope.Add(DigitalOceanAuthenticationConstants.Scopes.Read);
 
         ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "uuid");
         ClaimActions.MapJsonKey(ClaimTypes.Name, "name");

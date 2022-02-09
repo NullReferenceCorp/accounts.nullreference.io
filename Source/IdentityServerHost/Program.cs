@@ -3,11 +3,12 @@ using Duende.IdentityServer.Stores.Serialization;
 using IdentityServer.Pages.Admin.ApiScopes;
 using IdentityServer.Pages.Admin.Clients;
 using IdentityServer.Pages.Admin.IdentityScopes;
+using IdentityServerHost.ConfigureOptions;
+using IdentityServerHost.Constants;
 using IdentityServerHost.Data;
 using IdentityServerHost.Models;
 using IdentityServerHost.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -51,11 +52,15 @@ builder.Services.AddDefaultIdentity<ApplicationUser>()
     .AddClaimsPrincipalFactory<ClaimsFactory<ApplicationUser>>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.ConfigureOptions<ConfigureCorsOptions>();
+
 builder.Services.AddDataProtection(o => o.ApplicationDiscriminator = "accounts.nullreference.io").PersistKeysToDbContext<DataProtectionKeysDbContext>();
 
 builder.Services
        .AddIdentityServer(options =>
 {
+    options.Cors.CorsPolicyName = CorsPolicyName.AllowAny;
+
     options.PersistentGrants = new PersistentGrantOptions()
     {
         DataProtectData = true
