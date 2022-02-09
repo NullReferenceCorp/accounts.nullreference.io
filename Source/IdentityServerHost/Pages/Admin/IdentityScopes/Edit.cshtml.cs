@@ -14,7 +14,7 @@ public class EditModel : PageModel
 
     public EditModel(IdentityScopeRepository repository)
     {
-        _repository = repository;
+        this._repository = repository;
     }
 
     [BindProperty]
@@ -24,29 +24,29 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnGetAsync(string id)
     {
-        InputModel = await _repository.GetByIdAsync(id);
-        if (InputModel == null)
+        this.InputModel = await this._repository.GetByIdAsync(id);
+        if (this.InputModel == null)
         {
-            return RedirectToPage("/Admin/IdentityScopes/Index");
+            return this.RedirectToPage("/Admin/IdentityScopes/Index");
         }
 
-        return Page();
+        return this.Page();
     }
 
     public async Task<IActionResult> OnPostAsync(string id)
     {
-        if (Button == "delete")
+        if (this.Button == "delete")
         {
-            await _repository.DeleteAsync(id);
-            return RedirectToPage("/Admin/IdentityScopes/Index");
+            await this._repository.DeleteAsync(id);
+            return this.RedirectToPage("/Admin/IdentityScopes/Index");
         }
 
-        if (ModelState.IsValid)
+        if (this.ModelState.IsValid)
         {
-            await _repository.UpdateAsync(InputModel);
-            return RedirectToPage("/Admin/IdentityScopes/Edit", new { id });
+            await this._repository.UpdateAsync(this.InputModel);
+            return this.RedirectToPage("/Admin/IdentityScopes/Edit", new { id });
         }
 
-        return Page();
+        return this.Page();
     }
 }

@@ -39,9 +39,9 @@ public class ClientModel : CreateClientModel, IValidatableObject
     {
         var errors = new List<ValidationResult>();
 
-        if (Flow == Flow.CodeFlowWithPkce)
+        if (this.Flow == Flow.CodeFlowWithPkce)
         {
-            if (RedirectUri == null)
+            if (this.RedirectUri == null)
             {
                 errors.Add(new ValidationResult("Redirect URI is required.", new[] { "RedirectUri" }));
             }
@@ -63,14 +63,14 @@ public class ClientRepository
 
     public ClientRepository(ConfigurationDbContext context)
     {
-        _context = context;
+        this._context = context;
     }
 
     public async Task<IEnumerable<ClientSummaryModel>> GetAllAsync(string filter = null)
     {
         var grants = new[] { GrantType.AuthorizationCode, GrantType.ClientCredentials };
 
-        var query = _context.Clients
+        var query = this._context.Clients
             .Include(x => x.AllowedGrantTypes)
             .Where(x => x.AllowedGrantTypes.Count == 1 && x.AllowedGrantTypes.Any(grant => grants.Contains(grant.GrantType)));
 
@@ -91,7 +91,7 @@ public class ClientRepository
 
     public async Task<ClientModel> GetByIdAsync(string id)
     {
-        var client = await _context.Clients
+        var client = await this._context.Clients
             .Include(x => x.AllowedGrantTypes)
             .Include(x => x.AllowedScopes)
             .Include(x => x.RedirectUris)
@@ -130,13 +130,13 @@ public class ClientRepository
             client.AllowedGrantTypes = GrantTypes.Code;
         }
 
-        _context.Clients.Add(client.ToEntity());
-        await _context.SaveChangesAsync();
+        this._context.Clients.Add(client.ToEntity());
+        await this._context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(ClientModel model)
     {
-        var client = await _context.Clients
+        var client = await this._context.Clients
             .Include(x => x.AllowedGrantTypes)
             .Include(x => x.AllowedScopes)
             .Include(x => x.RedirectUris)
@@ -199,17 +199,17 @@ public class ClientRepository
             }
         }
 
-        await _context.SaveChangesAsync();
+        await this._context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(string clientId)
     {
-        var client = await _context.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
+        var client = await this._context.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
 
         if (client == null) throw new Exception("Invalid Client Id");
 
-        _context.Clients.Remove(client);
-        await _context.SaveChangesAsync();
+        this._context.Clients.Remove(client);
+        await this._context.SaveChangesAsync();
     }
 
 }

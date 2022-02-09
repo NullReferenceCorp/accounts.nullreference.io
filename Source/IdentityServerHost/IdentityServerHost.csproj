@@ -25,18 +25,18 @@
   <ItemGroup Label="Package References">
     <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="6.0.3" />
     <PackageReference Include="Boxed.AspNetCore" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="6.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="6.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="6.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="6.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.1">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.2" />
     <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
 
     <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.1.0" />
@@ -51,17 +51,17 @@
     <PackageReference Include="Serilog.Enrichers.Span" Version="2.0.1" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
     <PackageReference Include="Serilog.Exceptions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.2" />
     <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="6.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.2" />
 
     <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="6.0.4" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.2" />
 
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.1">
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

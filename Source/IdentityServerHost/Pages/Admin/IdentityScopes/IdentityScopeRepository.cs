@@ -29,12 +29,12 @@ public class IdentityScopeRepository
 
     public IdentityScopeRepository(ConfigurationDbContext context)
     {
-        _context = context;
+        this._context = context;
     }
 
     public async Task<IEnumerable<IdentityScopeSummaryModel>> GetAllAsync(string filter = null)
     {
-        var query = _context.IdentityResources
+        var query = this._context.IdentityResources
             .Include(x => x.UserClaims)
             .AsQueryable();
 
@@ -54,7 +54,7 @@ public class IdentityScopeRepository
 
     public async Task<IdentityScopeModel> GetByIdAsync(string id)
     {
-        var scope = await _context.IdentityResources
+        var scope = await this._context.IdentityResources
             .Include(x => x.UserClaims)
             .SingleOrDefaultAsync(x => x.Name == id);
 
@@ -82,13 +82,13 @@ public class IdentityScopeRepository
             scope.UserClaims = claims.ToList();
         }
 
-        _context.IdentityResources.Add(scope.ToEntity());
-        await _context.SaveChangesAsync();
+        this._context.IdentityResources.Add(scope.ToEntity());
+        await this._context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(IdentityScopeModel model)
     {
-        var scope = await _context.IdentityResources
+        var scope = await this._context.IdentityResources
             .Include(x => x.UserClaims)
             .SingleOrDefaultAsync(x => x.Name == model.Name);
 
@@ -117,17 +117,17 @@ public class IdentityScopeRepository
             }));
         }
 
-        await _context.SaveChangesAsync();
+        await this._context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(string id)
     {
-        var scope = await _context.IdentityResources.SingleOrDefaultAsync(x => x.Name == id);
+        var scope = await this._context.IdentityResources.SingleOrDefaultAsync(x => x.Name == id);
 
         if (scope == null) throw new Exception("Invalid Identity Scope");
 
-        _context.IdentityResources.Remove(scope);
-        await _context.SaveChangesAsync();
+        this._context.IdentityResources.Remove(scope);
+        await this._context.SaveChangesAsync();
     }
 
 }
