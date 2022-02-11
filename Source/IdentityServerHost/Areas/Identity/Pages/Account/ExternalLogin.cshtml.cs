@@ -109,12 +109,16 @@ public class ExternalLoginModel : PageModel
     public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
     {
         returnUrl ??= this.Url.Content("~/");
+
         if (remoteError != null)
         {
             this.ErrorMessage = $"Error from external provider: {remoteError}";
+
             return this.RedirectToPage("./Login", new { ReturnUrl = returnUrl });
         }
+
         var info = await this.signInManager.GetExternalLoginInfoAsync().ConfigureAwait(false);
+
         if (info == null)
         {
             this.ErrorMessage = "Error loading external login information.";
@@ -123,11 +127,52 @@ public class ExternalLoginModel : PageModel
 
         // Sign in the user with this external login provider if the user already has a login.
         var result = await this.signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true).ConfigureAwait(false);
+
         if (result.Succeeded)
         {
             this.logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+
+            var user = await this.userManager.FindByLoginAsync(info.LoginProvider,
+                info.ProviderKey).ConfigureAwait(false);
+            var userClaims = await this.userManager.GetClaimsAsync(user).ConfigureAwait(false);
+            var refreshSignIn = false;
+
+            foreach (var addedClaim in info.Principal?.Claims ?? info.Principal.Identities.FirstOrDefault()?.Claims)
+            {
+                var userClaim = userClaims
+                    .FirstOrDefault(c => c.Type == addedClaim.Type);
+
+                if (info.Principal.HasClaim(c => c.Type == addedClaim.Type))
+                {
+                    var externalClaim = info.Principal.FindFirst(addedClaim.Type);
+
+                    if (userClaim == null)
+                    {
+                        _ = await this.userManager.AddClaimAsync(user, new Claim(addedClaim.Type, externalClaim.Value)).ConfigureAwait(false);
+                        refreshSignIn = true;
+                    }
+                    else if (userClaim.Value != externalClaim.Value)
+                    {
+                        _ = await this.userManager.ReplaceClaimAsync(user, userClaim, externalClaim).ConfigureAwait(false);
+                        refreshSignIn = true;
+                    }
+                }
+                else if (userClaim == null)
+                {
+                    // Fill with a default value
+                    _ = await this.userManager.AddClaimAsync(user, new Claim(addedClaim.Type, addedClaim.Value)).ConfigureAwait(false);
+                    refreshSignIn = true;
+                }
+            }
+
+            if (refreshSignIn)
+            {
+                await this.signInManager.RefreshSignInAsync(user).ConfigureAwait(false);
+            }
+
             return this.LocalRedirect(returnUrl);
         }
+
         if (result.IsLockedOut)
         {
             return this.RedirectToPage("./Lockout");
