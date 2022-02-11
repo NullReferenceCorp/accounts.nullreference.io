@@ -137,7 +137,7 @@ public class ExternalLoginModel : PageModel
             var userClaims = await this.userManager.GetClaimsAsync(user).ConfigureAwait(false);
             var refreshSignIn = false;
 
-            foreach (var addedClaim in userClaims)
+            foreach (var addedClaim in info.Principal?.Claims ?? info.Principal.Identities.FirstOrDefault()?.Claims)
             {
                 var userClaim = userClaims
                     .FirstOrDefault(c => c.Type == addedClaim.Type);

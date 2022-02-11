@@ -6,6 +6,7 @@ namespace IdentityServerHost.Areas.Identity.Pages.Account.Manage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServerHost.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -128,6 +129,42 @@ public class ExternalLoginsModel : PageModel
         {
             this.StatusMessage = "The external login was not added. External logins can only be associated with one account.";
             return this.RedirectToPage();
+        }
+
+        var userClaims = await this.userManager.GetClaimsAsync(user).ConfigureAwait(false);
+        var refreshSignIn = false;
+
+        foreach (var addedClaim in info.Principal?.Claims ?? info.Principal.Identities.FirstOrDefault()?.Claims)
+        {
+            var userClaim = userClaims
+                .FirstOrDefault(c => c.Type == addedClaim.Type);
+
+            if (info.Principal.HasClaim(c => c.Type == addedClaim.Type))
+            {
+                var externalClaim = info.Principal.FindFirst(addedClaim.Type);
+
+                if (userClaim == null)
+                {
+                    _ = await this.userManager.AddClaimAsync(user, new Claim(addedClaim.Type, externalClaim.Value)).ConfigureAwait(false);
+                    refreshSignIn = true;
+                }
+                else if (userClaim.Value != externalClaim.Value)
+                {
+                    _ = await this.userManager.ReplaceClaimAsync(user, userClaim, externalClaim).ConfigureAwait(false);
+                    refreshSignIn = true;
+                }
+            }
+            else if (userClaim == null)
+            {
+                // Fill with a default value
+                _ = await this.userManager.AddClaimAsync(user, new Claim(addedClaim.Type, addedClaim.Value)).ConfigureAwait(false);
+                refreshSignIn = true;
+            }
+        }
+
+        if (refreshSignIn)
+        {
+            await this.signInManager.RefreshSignInAsync(user).ConfigureAwait(false);
         }
 
         // Clear the existing external cookie to ensure a clean login process
