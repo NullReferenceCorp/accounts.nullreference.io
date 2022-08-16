@@ -23,7 +23,7 @@
     <Content Include="wwwroot\.well-known\microsoft-identity-association.json" />
   </ItemGroup>
   <ItemGroup Label="Package References">
-    <PackageReference Include="AspNet.Security.OAuth.DigitalOcean" Version="6.0.6" />
+    <PackageReference Include="AspNet.Security.OAuth.DigitalOcean" Version="6.0.7" />
     <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="6.0.6" />
     <PackageReference Include="AspNet.Security.OAuth.Twitter" Version="6.0.6" />
     <PackageReference Include="Boxed.AspNetCore" Version="8.0.0+build.457" />
