@@ -24,7 +24,7 @@
   </ItemGroup>
   <ItemGroup Label="Package References">
     <PackageReference Include="AspNet.Security.OAuth.DigitalOcean" Version="6.0.6" />
-    <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="6.0.6" />
+    <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="7.0.0" />
     <PackageReference Include="AspNet.Security.OAuth.Twitter" Version="6.0.6" />
     <PackageReference Include="Boxed.AspNetCore" Version="8.0.0+build.457" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="6.0.8" />
